@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(prog='tracer',formatter_class=argparse.RawDescr
 parser.add_argument('--patientzero', help='The persons name (as logged in log file) that has tested positive', type=str, required=True)
 parser.add_argument('--datepositive', help='Date you expect person to be contageous, format like 04/20/2020', type=str, required=True)
 parser.add_argument('--incubation', help='Incubation period (in days); how long it takes a person to become contageous ', default='2', type=int)
-parser.add_argument('--logfile', help='Incubation period (in days); how long it takes a person to become contageous ', default='/var/log/doord.access.log', type=str)
+parser.add_argument('--logfile', help='specify a logfile other than default, like test.log', default='/var/log/doord.access.log', type=str)
 args = parser.parse_args()
 
 def main():
