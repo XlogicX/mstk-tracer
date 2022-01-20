@@ -1,0 +1,20 @@
+04/20/2018,21:45:00,Before Person 1
+04/20/2018,21:50:00,Before Person 2
+04/20/2018,21:55:00,Before Person 1
+04/23/2018,21:45:00,Before Person 3
+04/23/2018,21:50:00,Patient Zero
+04/23/2018,21:55:00,Patient Two A
+04/23/2018,21:58:00,Patient Zero
+04/23/2018,22:00:00,Patient Two B
+04/23/2018,22:05:00,Patient Two C
+04/26/2018,21:45:00,After Person One
+04/26/2018,21:50:00,After Person Two
+04/26/2018,21:55:00,After Person One
+04/29/2018,22:00:00,Another Person Three
+04/29/2018,22:05:00,Patient Two B
+04/29/2018,22:10:00,Patient Three A
+04/29/2018,22:15:00,Patient Three B
+05/02/2018,22:00:00,Patient Three A
+05/02/2018,22:05:00,Patient Four
+05/05/2018,22:00:00,Patient Two C
+05/05/2018,22:05:00,Patient Four The 2nd
