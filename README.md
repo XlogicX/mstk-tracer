@@ -22,7 +22,7 @@ optional arguments:
 ```
 
 # Description
-Though this script can be used in a general purpose fasshion with any log file that conforms to the format found in test.log (found in this repo), it was more specifically created to be used for contact tracing for the FatCat Fab Lab environment in the case an individual contracts a pandemic level illness.
+Though this script can be used in a general purpose fashion with any log file that conforms to the format found in test.log (found in this repo), it was more specifically created to be used for contact tracing for the FatCat Fab Lab environment in the case an individual contracts a pandemic level illness.
 
 You must provide the name of the person that tested positive (as it would be found in the log) and the date that they would have started being contageous (in mm/dd/yyyy format). You could also provide your own logfile (it is hardcoded for the FatCat log otherwise) and you can also set your own custom incubation period.
 
