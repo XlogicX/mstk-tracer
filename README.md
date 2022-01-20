@@ -75,7 +75,7 @@ The next section lists the names of the people directly exposed by patient zero.
 The next section lists the people indirectly exposed by patient zero, meaning patient zero exposed someone that exposed someone else, even though that someone else may not have directly had contact with patient zero.
 Finally, there is a list of the remaining people that could have been indirectly exposed by contact surfaces. This means that these people did not have any contact with patient zero or any of the direct or indirect exposures, but they DID happen to go to the lab on a day after patient zero was there.
 
-#Incubation Scenario
+# Incubation Scenario
 Same scenario as scenario I actually. But lets say that the CDC says that a new variant has a more aggressive incubation time; once you are exposed to the new variant, you become contageous within 15 minutes.
 
 By default, the incubation time is set to 2 days, which is somewhat aggressive. What this means is that if Patient Zero exposes someone, and that someone goes to the space the next day, they wouldn't be considered as exposing other people there that day, but would be considered the next day. We can change this behavior with --incubation.
