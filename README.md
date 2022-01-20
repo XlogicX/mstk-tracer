@@ -3,6 +3,7 @@ Contact Tracing (specifically for MakerSpace Toolkit)
 
 # Usage
 From ./tracer -h
+```
 usage: tracer [-h] --patientzero PATIENTZERO --datepositive DATEPOSITIVE [--incubation INCUBATION] [--logfile LOGFILE]
 
 Example Usage:
@@ -18,7 +19,8 @@ optional arguments:
 --incubation INCUBATION
                         Incubation period (in days); how long it takes a person to become contageous
 --logfile LOGFILE     specify a logfile other than default, like test.log
-  
+```
+
 # Description
 Though this script can be used in a general purpose fasshion with any log file that conforms to the format found in test.log (found in this repo), it was more specifically created to be used for contact tracing for the FatCat Fab Lab environment in the case an individual contracts a pandemic level illness.
 
@@ -30,11 +32,11 @@ It may be easier to walk through a scenario to get a feel for how this works. Th
 We are saying that 'Patient Zero' is the infected person, lets say they are contageous on 04-21-2018 (even if this isn't a day they came into the space). You can see that there are 'Before Person's that were in the space before hand (so not exposed). There are people named 'Patient...' as these are people we would expect to get infected. There are also some 'After Person's; people that weren't there on the day exposed people were, but could still be exposed by contact surfaces.
 
 At its most basic for this scenario, this is the command I would run:
-'''
+```
 ./tracer --patientzero 'Patient Zero' --datepositive '04/21/2018' --logfile test.log
-'''
+```
 
-'''
+```
 These are the results that we would get:
 Potential Social Infections (Timeline):
 Patient Zero Exposed Before Person 3 on 04/23/2018
@@ -65,7 +67,7 @@ Potential Contact Surface Infections
 After Person One Could have possibly been exposed
 After Person Two Could have possibly been exposed
 After Person One Could have possibly been exposed
-'''
+```
 
 The timeline is not a hard fact as far as the indirect exposures; there are many paths possible to getting exposed, this just lists a way that these people COULD have been exposed. what's not up for interpretation is that these people likely were at risk of exposure, regardless of by who.
 
@@ -79,9 +81,9 @@ Same scenario as scenario I actually. But lets say that the CDC says that a new 
 By default, the incubation time is set to 2 days, which is somewhat aggressive. What this means is that if Patient Zero exposes someone, and that someone goes to the space the next day, they wouldn't be considered as exposing other people there that day, but would be considered the next day. We can change this behavior with --incubation.
 
 In the case of our logs, not much would change with the results, as the days are spaced every 3 days anyway. However, if we were to assume a minimum 4 day incubation period and run:
-'''
+```
 ./tracer --patientzero 'Patient Zero' --datepositive '04/20/2018' --incubation 4 --logfile test.log
-'''
+```
 
 'Patient Four' was no longer socially exposed, but could be exposed due to contact surfaces still. Originally, Patient Zero exposed Patient Two B on 04/23/2018, who then exposed Patient Three A on 04/29/2018, who then exposed Patient Four on 05/02/2018. Note that previously, Patient Three A was exposed on 04/29/2018 and took two days to become contageous (which would be by 05/01/2018), so is able to expose Patient Four the next day on 05/02/2018. But now that we set the incubation to 4 days, Patient Three A wouldn't be able to exose people until 05/03/2018, which is the day after they came into contact with Patient Four.
 
