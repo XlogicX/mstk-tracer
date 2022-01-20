@@ -1,0 +1,123 @@
+#!/usr/bin/python3
+# Contact Tracing Utility
+
+from datetime import datetime,timedelta
+import textwrap
+import argparse
+parser = argparse.ArgumentParser(prog='tracer',formatter_class=argparse.RawDescriptionHelpFormatter,description=textwrap.dedent('''\
+    Example Usage:
+    --------------------------------
+    tracer --patientzero 'Persons Name' --datepositive '04/20/2020'
+    '''))
+parser.add_argument('--patientzero', help='The persons name (as logged in log file) that has tested positive', type=str, required=True)
+parser.add_argument('--datepositive', help='Date you expect person to be contageous, format like 04/20/2020', type=str, required=True)
+parser.add_argument('--incubation', help='Incubation period (in days); how long it takes a person to become contageous ', default='2', type=int)
+parser.add_argument('--logfile', help='Incubation period (in days); how long it takes a person to become contageous ', default='/var/log/doord.access.log', type=str)
+args = parser.parse_args()
+
+def main():
+    log = build_internal_log(args.datepositive)
+
+    exposed = []    # list of all people exposed (on the dates exposed)
+    exposed_people = [args.patientzero] # list of people potentially exposed
+
+    print('\nPotential Social Infections (Timeline):')
+
+    # Analyze first round
+    exposedr,exposed_people = patient(args.datepositive,args.patientzero,exposed,exposed_people,args.incubation,log)
+
+    # Get the first date that patient-zero was actually there
+    first_effective_date = datetime.strptime(exposedr[0].split(',')[1],'%m/%d/%Y') - timedelta(days=args.incubation)
+
+    # Get a list of ALL of the people that were in the lab since date that infected person first entered lab (regardless of social contact)
+    all_people = []
+    for line in log:                                                # For each line in the log
+        linedate = datetime.strptime(line.split(',')[0],'%m/%d/%Y') # Get datetime for date in line
+        # If the name isn't already in the list of all_people and is on or after the first effective date
+        if line.split(',')[2] not in all_people and linedate >= first_effective_date:
+            all_people.append(line.split(',')[2].rstrip("\n"))   # Add it to the list
+
+    direct_exposed = list(exposed_people)
+    log = [entry for entry in log if args.patientzero not in entry] # Done analyzing patient-zero, remove them from log
+
+    indirect_exposed = []
+    while len(exposedr) != 0:                       # While there are still potentially contageous people to check
+        for exposed_person in exposedr:                 # For each of those people/date pairs
+            name = exposed_person.split(',')[0]         # Get their name
+            date = exposed_person.split(',')[1]         # And the date to check for them
+            exposedr,exposed_people = patient(date,name,exposed,exposed_people,args.incubation,log)  # Gather the data
+
+            for person in exposed_people:
+                if person not in indirect_exposed and person not in direct_exposed:
+                    indirect_exposed.append(person)
+
+            log = [entry for entry in log if name not in entry] # Done analyzing person, remove from log
+            exposedr.remove(exposed_person)             # Remove them from list of people/dates the check
+
+    print('\nPeople potentially directly exposed by {}:'.format(args.patientzero))
+    for person in direct_exposed:
+        print(person)
+    print('\nPeople potentially indirectly exposed:')
+    for person in indirect_exposed:
+        print(person)
+
+    # Get contact-surface-only exposures.
+    print('\nPotential Contact Surface Infections')
+    for person in all_people:                           # In our list of all of the people in the time-frame
+        if person not in exposed_people:                # If they weren't socially exposed
+            print('{} Could have possibly been exposed'.format(person)) # State that they could have been contact-surface exposed
+
+
+def build_internal_log(date):
+# We will be looking through the log data a few times, it's far more efficient to just slice out the data
+# for the time-frame we are analyzing, and not the entire log each time.
+    log = []
+    for line in open(args.logfile,encoding="utf-8"):      # Open the badge entry logging file
+        date1 = datetime.strptime(date,'%m/%d/%Y')                  # Date provided as argument on command
+        date2 = datetime.strptime(line.split(',')[0],'%m/%d/%Y')    # Date of line in log
+        if date2 >= date1:                                          # If the date is same or newer than provided
+            log.append(line)                                        # Keep the line
+    return log
+
+# For a 'date' infected 'name' is there, who all else was there that day
+def otherpeople(date,name,exposed,exposed_people,incubation_days,log):
+# For a given day that a possibly exposed person was there, who else was there that day?
+# This function updates a list of total exposed people and a list of person-date pairs to check for another round
+    # Get a local copy of the log file for just this days data
+    today = []
+    for line in log:
+        if date in line:
+            today.append(line)
+
+    # Offset this day be the ammount of days decided by incubation_days
+    incubated_date = datetime.strptime(date,'%m/%d/%Y') + timedelta(days=incubation_days)
+
+    for line in today:              # for each of todays lines
+        if name not in line:                                                    # don't evaluate yourself
+            exposedname = line.split(',')[2].rstrip("\n")
+            logday = line.split(',')[0]
+            if exposedname + ',' + logday not in exposed:    # don't re-evaluate a patient/date
+                exposed.append(exposedname + ',' + incubated_date.strftime('%m/%d/%Y'))   #  if it's new though, append to list
+            if exposedname not in exposed_people:        # also build a lit of just the names (deduped)
+                exposed_people.append(exposedname)
+                print("{} Exposed {} on {}".format(name,exposedname,date))
+    return(exposed,exposed_people)
+
+def patient(date, name, exposed, exposed_people,incubation_days,log):
+    daysofinterest = []     # A list of all days patient zero as been present on and after being diagnosed positive
+    for line in log:        # Open the badge entry logging file
+        if name in line:                                                # if person-of-interest in the line
+            datestring = line.split(',')[0]                             # parse date as string
+            date1 = datetime.strptime(date,'%m/%d/%Y')                  # get datetime object of provided date
+            date2 = datetime.strptime(line.split(',')[0],'%m/%d/%Y')    # get datetime object of date in log line
+
+            if date2 >= date1:                          # Is the log date greater or same as provided date?
+                if datestring not in daysofinterest:        # As long as it is, and isn't already in our list
+                    daysofinterest.append(datestring)       # Add it to the list        
+
+    for day in daysofinterest:                                          # For each of those days
+        otherpeople(day,name,exposed,exposed_people,incubation_days,log)        # See who else was exposed
+
+    return(exposed,exposed_people)  # Updated list of people/dates to further investigate, and total current tally of people exposed
+
+main()
